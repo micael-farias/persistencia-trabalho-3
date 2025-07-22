@@ -5,6 +5,11 @@ from repositories import aluno_repo
 
 router = APIRouter()
 
+@router.get("/count", response_model=dict)
+async def contar_alunos():
+    total = await aluno_repo.count()
+    return {"total_de_alunos": total}
+
 @router.post("/", response_model=AlunoModel, status_code=status.HTTP_201_CREATED)
 async def criar_aluno(aluno: AlunoBase = Body(...)):
     return await aluno_repo.create(aluno)

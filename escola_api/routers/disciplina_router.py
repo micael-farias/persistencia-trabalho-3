@@ -5,6 +5,11 @@ from repositories import disciplina_repo
 
 router = APIRouter()
 
+@router.get("/count", response_model=dict)
+async def contar_disciplinas():
+    total = await disciplina_repo.count()
+    return {"total_de_disciplinas": total}
+    
 @router.post("/", response_model=DisciplinaModel, status_code=status.HTTP_201_CREATED)
 async def criar_disciplina(disciplina: DisciplinaBase = Body(...)):
     return await disciplina_repo.create(disciplina)
@@ -34,3 +39,4 @@ async def deletar_disciplina(id: str):
     if not deletado:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Disciplina com ID {id} não encontrada")
     return
+    

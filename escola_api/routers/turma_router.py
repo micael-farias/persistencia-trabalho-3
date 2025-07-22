@@ -5,6 +5,11 @@ from repositories import turma_repo
 
 router = APIRouter()
 
+@router.get("/count", response_model=dict)
+async def contar_turmas():
+    total = await turma_repo.count()
+    return {"total_de_turmas": total}
+
 @router.post("/", response_model=TurmaModel, status_code=status.HTTP_201_CREATED)
 async def criar_turma(turma: TurmaBase = Body(...)):
     return await turma_repo.create(turma)

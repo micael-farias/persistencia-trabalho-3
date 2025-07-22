@@ -5,6 +5,11 @@ from repositories import nota_repo
 
 router = APIRouter()
 
+@router.get("/count", response_model=dict)
+async def contar_notas():
+    total = await nota_repo.count()
+    return {"total_de_notas": total}
+
 @router.post("/", response_model=NotaModel, status_code=status.HTTP_201_CREATED)
 async def criar_nota(nota: NotaBase = Body(...)):
     return await nota_repo.create(nota)

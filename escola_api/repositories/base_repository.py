@@ -51,3 +51,6 @@ class BaseRepository:
         
         result = await self.collection.delete_one({"_id": ObjectId(id)})
         return result.deleted_count > 0
+
+    async def count(self) -> int:
+        return await self.collection.count_documents({})
