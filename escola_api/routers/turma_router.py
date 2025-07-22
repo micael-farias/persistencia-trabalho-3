@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Body, status, HTTPException
-from typing import List
+from typing import List, Optional
 from models.turma import TurmaBase, TurmaModel, UpdateTurmaModel
 from repositories import turma_repo
 
@@ -15,9 +15,9 @@ async def criar_turma(turma: TurmaBase = Body(...)):
     return await turma_repo.create(turma)
 
 @router.get("/", response_model=List[TurmaModel])
-async def listar_turmas(page: int = 1, limit: int = 10):
+async def listar_turmas(serie_ano: Optional[str] = None, turno: Optional[str] = None, ano_letivo: Optional[int] = None, page: int = 1, limit: int = 10):
     skip = (page - 1) * limit
-    return await turma_repo.get_all(skip=skip, limit=limit)
+    return await turma_repo.search(serie_ano=serie_ano, turno=turno, ano_letivo=ano_letivo, skip=skip, limit=limit)
 
 @router.get("/{id}", response_model=TurmaModel)
 async def buscar_turma_por_id(id: str):

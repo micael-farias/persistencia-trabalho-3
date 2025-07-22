@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Body, status, HTTPException
-from typing import List
+from typing import List, Optional
 from models.disciplina import DisciplinaBase, DisciplinaModel, UpdateDisciplinaModel
 from repositories import disciplina_repo
 
@@ -9,15 +9,15 @@ router = APIRouter()
 async def contar_disciplinas():
     total = await disciplina_repo.count()
     return {"total_de_disciplinas": total}
-    
+
 @router.post("/", response_model=DisciplinaModel, status_code=status.HTTP_201_CREATED)
 async def criar_disciplina(disciplina: DisciplinaBase = Body(...)):
     return await disciplina_repo.create(disciplina)
 
 @router.get("/", response_model=List[DisciplinaModel])
-async def listar_disciplinas(page: int = 1, limit: int = 10):
+async def listar_disciplinas(nome: Optional[str] = None, ementa: Optional[str] = None, carga_horaria_min: Optional[int] = None, carga_horaria_max: Optional[int] = None, page: int = 1, limit: int = 10):
     skip = (page - 1) * limit
-    return await disciplina_repo.get_all(skip=skip, limit=limit)
+    return await disciplina_repo.search(nome=nome, ementa=ementa, carga_horaria_min=carga_horaria_min, carga_horaria_max=carga_horaria_max, skip=skip, limit=limit)
 
 @router.get("/{id}", response_model=DisciplinaModel)
 async def buscar_disciplina_por_id(id: str):

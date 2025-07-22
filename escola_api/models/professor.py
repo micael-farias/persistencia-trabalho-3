@@ -10,7 +10,6 @@ class ProfessorBase(BaseModel):
     data_nascimento: datetime
     email: str
     telefone: str
-    id_professor: str = Field(...)
     departamento: str
 
 class UpdateProfessorModel(BaseModel):
@@ -19,7 +18,6 @@ class UpdateProfessorModel(BaseModel):
     data_nascimento: Optional[datetime] = None
     email: Optional[str] = None
     telefone: Optional[str] = None
-    id_professor: Optional[str] = None
     departamento: Optional[str] = None
 
 class ProfessorModel(ProfessorBase):

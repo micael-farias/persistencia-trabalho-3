@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Body, status, HTTPException
-from typing import List
+from typing import List, Optional
 from models.aluno import AlunoBase, AlunoModel, UpdateAlunoModel
 from repositories import aluno_repo
 
@@ -15,9 +15,9 @@ async def criar_aluno(aluno: AlunoBase = Body(...)):
     return await aluno_repo.create(aluno)
 
 @router.get("/", response_model=List[AlunoModel])
-async def listar_alunos(page: int = 1, limit: int = 10):
+async def listar_alunos(nome: Optional[str] = None, ano_escolar: Optional[int] = None, page: int = 1, limit: int = 10):
     skip = (page - 1) * limit
-    return await aluno_repo.get_all(skip=skip, limit=limit)
+    return await aluno_repo.search(nome=nome, ano_escolar=ano_escolar, skip=skip, limit=limit)
 
 @router.get("/{id}", response_model=AlunoModel)
 async def buscar_aluno_por_id(id: str):

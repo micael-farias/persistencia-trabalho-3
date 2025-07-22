@@ -1,7 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pydantic import BaseModel
 from bson import ObjectId
-from typing import Type, TypeVar, List, Optional
+from typing import Type, TypeVar, List, Optional, Dict, Any
 
 ModelType = TypeVar("ModelType", bound=BaseModel)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
@@ -26,8 +26,8 @@ class BaseRepository:
             return self.model.model_validate(doc)
         return None
 
-    async def get_all(self, skip: int = 0, limit: int = 20) -> List[ModelType]:
-        cursor = self.collection.find().skip(skip).limit(limit)
+    async def find(self, query: Dict[str, Any], skip: int = 0, limit: int = 20) -> List[ModelType]:
+        cursor = self.collection.find(query).skip(skip).limit(limit)
         docs = await cursor.to_list(length=limit)
         return [self.model.model_validate(doc) for doc in docs]
 

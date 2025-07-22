@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Body, status, HTTPException
-from typing import List
+from typing import List, Optional
 from models.nota import NotaBase, NotaModel, UpdateNotaModel
 from repositories import nota_repo
+from models.base import PyObjectId
 
 router = APIRouter()
 
@@ -15,9 +16,9 @@ async def criar_nota(nota: NotaBase = Body(...)):
     return await nota_repo.create(nota)
 
 @router.get("/", response_model=List[NotaModel])
-async def listar_notas(page: int = 1, limit: int = 10):
+async def listar_notas(aluno_id: Optional[PyObjectId] = None, disciplina_id: Optional[PyObjectId] = None, nota_min: Optional[float] = None, nota_max: Optional[float] = None, page: int = 1, limit: int = 10):
     skip = (page - 1) * limit
-    return await nota_repo.get_all(skip=skip, limit=limit)
+    return await nota_repo.search(aluno_id=aluno_id, disciplina_id=disciplina_id, nota_min=nota_min, nota_max=nota_max, skip=skip, limit=limit)
 
 @router.get("/{id}", response_model=NotaModel)
 async def buscar_nota_por_id(id: str):

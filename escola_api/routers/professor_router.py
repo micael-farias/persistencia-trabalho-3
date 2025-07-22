@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Body, status, HTTPException
-from typing import List
+from typing import List, Optional
 from models.professor import ProfessorBase, ProfessorModel, UpdateProfessorModel
 from repositories import professor_repo
 
@@ -15,9 +15,9 @@ async def criar_professor(professor: ProfessorBase = Body(...)):
     return await professor_repo.create(professor)
 
 @router.get("/", response_model=List[ProfessorModel])
-async def listar_professores(page: int = 1, limit: int = 10):
+async def listar_professores(nome: Optional[str] = None, email: Optional[str] = None, telefone: Optional[str] = None, departamento: Optional[str] = None, page: int = 1, limit: int = 10):
     skip = (page - 1) * limit
-    return await professor_repo.get_all(skip=skip, limit=limit)
+    return await professor_repo.search(nome=nome, email=email, telefone=telefone, departamento=departamento, skip=skip, limit=limit)
 
 @router.get("/{id}", response_model=ProfessorModel)
 async def buscar_professor_por_id(id: str):
