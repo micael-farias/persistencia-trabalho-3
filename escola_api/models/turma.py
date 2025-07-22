@@ -1,5 +1,5 @@
-from typing import List
-from pydantic import BaseModel, Field
+from typing import List, Optional
+from pydantic import BaseModel, Field, ConfigDict
 from bson import ObjectId
 from .base import PyObjectId
 
@@ -16,9 +16,18 @@ class TurmaBase(BaseModel):
     horarios: List[HorarioEmbutido] = []
     disciplinas_ids: List[PyObjectId] = []
 
+class UpdateTurmaModel(BaseModel):
+    serie_ano: Optional[str] = None
+    turno: Optional[str] = None
+    sala: Optional[str] = None
+    ano_letivo: Optional[int] = None
+    horarios: Optional[List[HorarioEmbutido]] = None
+    disciplinas_ids: Optional[List[PyObjectId]] = None
+
 class TurmaModel(TurmaBase):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-
-    class Config:
-        json_encoders = {ObjectId: str}
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+        json_encoders={ObjectId: str},
+    )

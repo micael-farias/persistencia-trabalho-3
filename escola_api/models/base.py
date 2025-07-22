@@ -1,4 +1,3 @@
-# /models/base.py
 from typing import Any
 from bson import ObjectId
 from pydantic import GetCoreSchemaHandler
@@ -22,9 +21,6 @@ class PyObjectId(ObjectId):
         def serialize(v: ObjectId) -> str:
             return str(v)
         
-        # AQUI ESTÁ A CORREÇÃO:
-        # Trocamos o validador 'wrap' por 'plain', que espera uma
-        # função com apenas um argumento, como a nossa 'validate'.
         python_schema = core_schema.no_info_plain_validator_function(validate)
 
         serialization_schema = core_schema.plain_serializer_function_ser_schema(

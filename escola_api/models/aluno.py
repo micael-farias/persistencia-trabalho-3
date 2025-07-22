@@ -1,6 +1,6 @@
 from typing import Optional
 from datetime import datetime
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import Field, BaseModel, ConfigDict
 from bson import ObjectId
 from .base import PyObjectId
 
@@ -10,13 +10,24 @@ class AlunoBase(BaseModel):
     data_nascimento: datetime
     email: str
     telefone: str
-    matricula: str = Field(..., unique=True)
+    matricula: str = Field(...)
     ano_escolar: int = Field(..., ge=1, le=3)
+    turma_id: Optional[PyObjectId] = None
+
+class UpdateAlunoModel(BaseModel):
+    nome: Optional[str] = None
+    cpf: Optional[str] = None
+    data_nascimento: Optional[datetime] = None
+    email: Optional[str] = None
+    telefone: Optional[str] = None
+    matricula: Optional[str] = None
+    ano_escolar: Optional[int] = None
     turma_id: Optional[PyObjectId] = None
 
 class AlunoModel(AlunoBase):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-
-    class Config:
-        json_encoders = {ObjectId: str}
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+        json_encoders={ObjectId: str},
+    )
