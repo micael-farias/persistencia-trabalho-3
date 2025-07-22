@@ -1,9 +1,20 @@
-from fastapi import APIRouter, Body, status, HTTPException
+from fastapi import APIRouter, Body, status, HTTPException, Query
 from typing import List, Optional
+from datetime import datetime
+from pymongo import ASCENDING, DESCENDING
 from models.aluno import AlunoBase, AlunoModel, UpdateAlunoModel
 from repositories import aluno_repo
+from models.complex_models import BoletimCompletoModel
+from helpers.sort_order import SortOrder
 
 router = APIRouter()
+
+@router.get("/{id}/boletim", response_model=BoletimCompletoModel)
+async def buscar_boletim_aluno(id: str):
+    boletim = await aluno_repo.get_boletim_detalhado(id)
+    if boletim:
+        return boletim
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Aluno com ID {id} não encontrado ou não possui notas.")
 
 @router.get("/count", response_model=dict)
 async def contar_alunos():
@@ -15,9 +26,10 @@ async def criar_aluno(aluno: AlunoBase = Body(...)):
     return await aluno_repo.create(aluno)
 
 @router.get("/", response_model=List[AlunoModel])
-async def listar_alunos(nome: Optional[str] = None, ano_escolar: Optional[int] = None, page: int = 1, limit: int = 10):
+async def listar_alunos(nome: Optional[str] = None, ano_escolar: Optional[int] = None, data_nascimento_inicio: Optional[datetime] = Query(None, description="Data de início (formato ISO: YYYY-MM-DD)"), data_nascimento_fim: Optional[datetime] = Query(None, description="Data de fim (formato ISO: YYYY-MM-DD)"), sort_by: Optional[str] = Query(None, description="Campo para ordenação (ex: nome, data_nascimento)"), sort_order: SortOrder = Query(SortOrder.asc, description="Ordem da ordenação"), page: int = 1, limit: int = 10):
     skip = (page - 1) * limit
-    return await aluno_repo.search(nome=nome, ano_escolar=ano_escolar, skip=skip, limit=limit)
+    order = DESCENDING if sort_order == SortOrder.desc else ASCENDING
+    return await aluno_repo.search(nome=nome, ano_escolar=ano_escolar, data_nascimento_inicio=data_nascimento_inicio, data_nascimento_fim=data_nascimento_fim, sort_by=sort_by, sort_order=order, skip=skip, limit=limit)
 
 @router.get("/{id}", response_model=AlunoModel)
 async def buscar_aluno_por_id(id: str):

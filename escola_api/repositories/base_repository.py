@@ -26,8 +26,13 @@ class BaseRepository:
             return self.model.model_validate(doc)
         return None
 
-    async def find(self, query: Dict[str, Any], skip: int = 0, limit: int = 20) -> List[ModelType]:
-        cursor = self.collection.find(query).skip(skip).limit(limit)
+    async def find(self, query: Dict[str, Any], skip: int = 0, limit: int = 20, sort_query: Optional[List[tuple]] = None) -> List[ModelType]:
+        cursor = self.collection.find(query)
+        if sort_query:
+
+            cursor = cursor.sort(sort_query)
+        
+        cursor = cursor.skip(skip).limit(limit)
         docs = await cursor.to_list(length=limit)
         return [self.model.model_validate(doc) for doc in docs]
 

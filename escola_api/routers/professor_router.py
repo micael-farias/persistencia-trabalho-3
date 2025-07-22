@@ -2,8 +2,16 @@ from fastapi import APIRouter, Body, status, HTTPException
 from typing import List, Optional
 from models.professor import ProfessorBase, ProfessorModel, UpdateProfessorModel
 from repositories import professor_repo
+from models.complex_models import DesempenhoProfessorModel
 
 router = APIRouter()
+
+@router.get("/{id}/desempenho", response_model=DesempenhoProfessorModel)
+async def buscar_desempenho_professor(id: str):
+    desempenho = await professor_repo.get_desempenho_por_disciplina(id)
+    if desempenho:
+        return desempenho
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Professor com ID {id} não encontrado.")
 
 @router.get("/count", response_model=dict)
 async def contar_professores():
