@@ -2,6 +2,8 @@ from .base_repository import BaseRepository
 from models import TurmaModel
 from database import turma_collection
 from typing import Optional, List
+from models.complex_models import TurmaComAlunosModel
+from bson import ObjectId
 
 class TurmaRepository(BaseRepository):
     def __init__(self):
@@ -24,3 +26,24 @@ class TurmaRepository(BaseRepository):
             query_filter["ano_letivo"] = ano_letivo
             
         return await self.find(query_filter, skip=skip, limit=limit)
+
+    async def get_turma_com_alunos(self, turma_id: str) -> Optional[TurmaComAlunosModel]:
+        if not ObjectId.is_valid(turma_id):
+            return None
+
+        pipeline = [
+            {'$match': {'_id': ObjectId(turma_id)}},
+            
+            {'$lookup': {
+                'from': 'alunos',           
+                'localField': '_id',         
+                'foreignField': 'turma_id',  
+                'as': 'alunos'             
+            }}
+        ]
+
+        result = await self.collection.aggregate(pipeline).to_list(1)
+        if not result:
+            return None
+        
+        return TurmaComAlunosModel.model_validate(result[0])

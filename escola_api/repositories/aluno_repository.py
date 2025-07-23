@@ -6,6 +6,7 @@ from models.complex_models import BoletimCompletoModel
 from bson import ObjectId
 from pymongo import ASCENDING
 from datetime import datetime
+from models.complex_models import AlunoComTurmaModel
 
 class AlunoRepository(BaseRepository):
     def __init__(self):
@@ -94,3 +95,26 @@ class AlunoRepository(BaseRepository):
             return None
         
         return BoletimCompletoModel.model_validate(result[0])
+
+    async def get_aluno_com_turma(self, aluno_id: str) -> Optional[AlunoComTurmaModel]:
+        if not ObjectId.is_valid(aluno_id):
+            return None
+
+        pipeline = [
+            {'$match': {'_id': ObjectId(aluno_id)}},
+            {'$lookup': {
+                'from': 'turmas',
+                'localField': 'turma_id',
+                'foreignField': '_id',
+                'as': 'turma_info'
+            }},
+            {'$unwind': {'path': '$turma_info', 'preserveNullAndEmptyArrays': True}},
+            {'$addFields': {'turma': '$turma_info'}},
+            {'$project': {'turma_info': 0}}
+        ]
+
+        result = await self.collection.aggregate(pipeline).to_list(1)
+        if not result:
+            return None
+            
+        return AlunoComTurmaModel.model_validate(result[0])

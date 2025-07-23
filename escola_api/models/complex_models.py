@@ -4,7 +4,7 @@ from .aluno import AlunoModel
 from .disciplina import DisciplinaModel
 from .professor import ProfessorModel
 from .base import PyObjectId
-
+from .turma import TurmaModel
 class ProfessorInfoBoletim(BaseModel):
     nome: str
     email: str
@@ -29,3 +29,9 @@ class DesempenhoDisciplina(BaseModel):
 
 class DesempenhoProfessorModel(ProfessorModel):
     desempenho_disciplinas: List[DesempenhoDisciplina] = []
+
+class TurmaComAlunosModel(TurmaModel):
+    alunos: List[AlunoModel] = []
+
+class AlunoComTurmaModel(AlunoModel):
+    turma: Optional[TurmaModel] = None

@@ -2,8 +2,17 @@ from fastapi import APIRouter, Body, status, HTTPException
 from typing import List, Optional
 from models.turma import TurmaBase, TurmaModel, UpdateTurmaModel
 from repositories import turma_repo
+from models.complex_models import TurmaComAlunosModel
 
 router = APIRouter()
+
+@router.get("/{id}/detalhes", response_model=TurmaComAlunosModel)
+async def buscar_turma_detalhada(id: str):
+    turma_detalhada = await turma_repo.get_turma_com_alunos(id)
+    if turma_detalhada:
+        return turma_detalhada
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Turma com ID {id} não encontrada.")
+
 
 @router.get("/count", response_model=dict)
 async def contar_turmas():

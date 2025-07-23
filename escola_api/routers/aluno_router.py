@@ -6,8 +6,16 @@ from models.aluno import AlunoBase, AlunoModel, UpdateAlunoModel
 from repositories import aluno_repo
 from models.complex_models import BoletimCompletoModel
 from helpers.sort_order import SortOrder
+from models.complex_models import AlunoComTurmaModel
 
 router = APIRouter()
+
+@router.get("/{id}/detalhes", response_model=AlunoComTurmaModel)
+async def buscar_aluno_detalhado(id: str):
+    aluno_detalhado = await aluno_repo.get_aluno_com_turma(id)
+    if aluno_detalhado:
+        return aluno_detalhado
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Aluno com ID {id} não encontrado.")
 
 @router.get("/{id}/boletim", response_model=BoletimCompletoModel)
 async def buscar_boletim_aluno(id: str):
